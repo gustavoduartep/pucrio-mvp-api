@@ -1,20 +1,19 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, conint
 from typing import Optional, List
 from model.item import Item
 
 class ItemSchema(BaseModel):
     """
     """
-    nome: str = "Uramaki Salmão"
-    quantidade: Optional[int] = 12
-    valor: float = 4.99
+    nome: str = Field("Uramaki Salmão", description="Nome do item")
+    quantidade: conint(gt=0) = Field(1, description="A quantidade de itens para adicionar na lista")
+    valor: float = Field(4.99, description="O valor do item em formato de moeda internacional (i.e casas decimais com divisão em .)")
 
 class BuscaItemSchema(BaseModel):
-    """ Define como deve ser a estrutura que representa a busca. Que será
-        feita apenas com base no Id do produto.
+    """Define como deve retorna a estrutura do objeto consultado através do ID.
     """
 
-    id: int = Field(..., title="ID do item", description="O ID do item que deve ser encontrado.")
+    id: int = Field(..., title="ID do item", description="O ID do item alvo do evento.")
 
 class ListagemItemSchema(BaseModel):
     itens:List[ItemSchema]

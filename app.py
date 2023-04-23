@@ -13,18 +13,17 @@ CORS(app)
 
 # Tags
 
-home_tag = Tag(name="Documentação", description="Seleção de documentação: Swagger, Redoc ou RapiDoc")
-item_tag = Tag(name="Item", description="Adição, visualização e exclusão de itens")
+#home_tag = Tag(name="Documentação", description="Seleção de documentação: Swagger, Redoc ou RapiDoc")
+item_tag = Tag(name="Item", description="Inclusão de itens na lista, consulta e exclusão de itens")
 
-@app.get('/', tags=[home_tag])
+@app.get('/')
 def home():
-    """Redireciona para a documentação da API via Swagger, permitindo que o usuário conheça toda arquitetura de serviços
-    """
     return redirect('/openapi/swagger')
 
 @app.post('/item', tags=[item_tag], responses={"200": ItemViewSchema, "409" : ErrorSchema, "400" : ErrorSchema, "500" : ErrorSchema})
 def cadastrar_item(form: ItemSchema):
-    """Adiciona um novo item
+    """Adiciona um item na lista de compra do cliente
+    Adiciona o item disponível do catálogo na lista de compra.
     """
 
     item = Item(
@@ -54,6 +53,7 @@ def cadastrar_item(form: ItemSchema):
 
 def get_itens():
     """Lista todos os itens cadastrados
+    Retorna a lista de todos os itens disponíveis na lista de compra.
     """
 
     sessao = Session()
@@ -68,16 +68,16 @@ def get_itens():
 @app.get('/item', tags=[item_tag], responses={"200" : ItemViewSchema, "404": ErrorSchema})
 def lista_item(query: BuscaItemSchema):
     """Faz a busca de um item específico
+    Realiza a consulta do item e retorna uma resposta em JSON. Em caso de sucesso retorna o objeto, em caso de falha retorna um feedback negativo.
     """
 
     item_id = query.id
-
+    print(item_id)
     sessao = Session()
 
-    item = sessao.query(Item).filter(Item.id == item.id).First()
+    item = sessao.query(Item).filter(Item.id == item_id).first()
 
     if not item:
-
         mensagem_erro = "Item não encontrado"
         return {"message": mensagem_erro}, 404
     else:
@@ -88,7 +88,7 @@ def lista_item(query: BuscaItemSchema):
 def del_produto(query: BuscaItemSchema):
     """Deleta um Item a partir do id informado
 
-    Retorna uma mensagem de confirmação da remoção.
+    Remove o item da base de dados. Em caso de sucesso retorna uma mensagem de confirmação da remoção, em caso de falha retorna um feedback negativo.
     """
     item_id = query.id
     print(item_id)
